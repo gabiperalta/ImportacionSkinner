@@ -80,10 +80,14 @@ BEEFIX
 BIND - Area protegida
 SEGURCOOP
 RRHH EMERGENCIAS CARDINAL
-Hogar - BancoIndustrial
-MEDICASSIST
-GarantiaDirecta
-Assisto
-AMSE
+Hogar - BancoIndustrial/
+MEDICASSIST/
+GarantiaDirecta/
+Assisto/
+AMSE/
 Caruso/
 PACK BENEFICIO SALUD/
+
+*.OBJ
+*.tmp
+*.exe

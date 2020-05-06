@@ -63,7 +63,7 @@ camposParaValidar(1) = "APELLIDOYNOMBRE"
 'camposParaValidar(2) = "INICIOVIGENCIA"
 camposParaValidar(2) = "IDPRODUCTO"
 
-
+msgbox "prueba"
 '========'objeto excel para almacenar errores============================
 
 If FuncionesExcel.validarCampos(camposParaValidar(), oSheet, columnas) = True Then
@@ -407,7 +407,7 @@ If FuncionesExcel.validarCampos(camposParaValidar(), oSheet, columnas) = True Th
 'y genera cuadro de mensaje para procesar los registros leidos.
     
         ImportadordePolizas.txtprocesando.Text = "Importando " & ImportadordePolizas.cmbCia.Text & Chr(13) & " copiando linea " & lRow - 2 & Chr(13) & " Procesando los datos"
-        If MsgBox("¿Desea Procesar los datos de " & vgDescCampana & " ?", vbYesNo + vbDefaultButton2) = vbNo Then Exit Sub
+        If MsgBox("ï¿½Desea Procesar los datos de " & vgDescCampana & " ?", vbYesNo + vbDefaultButton2) = vbNo Then Exit Sub
     
 '===============inicio del Control de Procesos=====================================
 

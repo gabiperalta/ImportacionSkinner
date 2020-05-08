@@ -23,11 +23,6 @@ Dim vFechaDeVencimiento As String
 Dim vNombreTomador As String
 Dim regMod As Long
 
-Dim vCoberturaLista(0 To 2, 0 To 20) As String
-Dim vLeidosPorCoberturaLista(0 To 2, 0 To 20) As Long
-Dim vCoberturaActual(0 To 2) As String
-Dim posicion As Integer
-
 'Dim rs As ADODB.Recordset
 '    rs.Open Null, Null, adOpenKeyset, adLockBatchOptimistic
 '    rs.batchupdate
@@ -95,13 +90,9 @@ End If
 '=================================================================================================
     Ll = 1
     tf.SkipLine 'Saltea la linea de encabezados
-    
-    For posicion = 0 To 20
-        vCoberturaLista(0, posicion) = "_"
-        vCoberturaLista(1, posicion) = "_"
-        vCoberturaLista(2, posicion) = "_"
-    Next posicion
-    
+        
+    InicializarCoberturaLista
+        
     Do Until tf.AtEndOfStream
         vCoberturaActual(0) = ""
         vCoberturaActual(1) = ""
@@ -391,27 +382,7 @@ End If
         vgCodigoEnCliente = "01"
         
         '=============== Lectura de coberturas ===============
-        vCoberturaActual(0) = vgCOBERTURAVEHICULO
-        vCoberturaActual(1) = vgCOBERTURAVIAJERO
-        vCoberturaActual(2) = vgCOBERTURAHOGAR
-        
-        Dim coberturaPosicion As Integer
-            
-        For coberturaPosicion = 0 To 2
-            posicion = 0
-            Do While posicion < 20 And vCoberturaActual(coberturaPosicion) <> ""
-                If vCoberturaLista(coberturaPosicion, posicion) = vCoberturaActual(coberturaPosicion) Then
-                    vLeidosPorCoberturaLista(coberturaPosicion, posicion) = vLeidosPorCoberturaLista(coberturaPosicion, posicion) + 1
-                    Exit Do
-                ElseIf vCoberturaLista(coberturaPosicion, posicion) = "_" Then
-                    vCoberturaLista(coberturaPosicion, posicion) = vCoberturaActual(coberturaPosicion)
-                    vLeidosPorCoberturaLista(coberturaPosicion, posicion) = vLeidosPorCoberturaLista(coberturaPosicion, posicion) + 1
-                    Exit Do
-                End If
-                
-                posicion = posicion + 1
-            Loop
-        Next coberturaPosicion
+        LeerCoberturas
             
 '==============  IMPORTANTE   ================================================================.
 '  Aqui controlamos si el registro ya existe en la base de datos de produccion
@@ -609,19 +580,7 @@ Dim vdif As Long
         DoEvents
     Loop
 
-    For posicion = 0 To 20
-    
-        If vLeidosPorCoberturaLista(0, posicion) > 0 Then
-            CantidadPorCobertura vgIdHistorialImportacion, "COBERTURAVEHICULO", vCoberturaLista(0, posicion), vLeidosPorCoberturaLista(0, posicion), 0
-        End If
-        If vLeidosPorCoberturaLista(1, posicion) > 0 Then
-            CantidadPorCobertura vgIdHistorialImportacion, "COBERTURAVIAJERO", vCoberturaLista(1, posicion), vLeidosPorCoberturaLista(1, posicion), 0
-        End If
-        If vLeidosPorCoberturaLista(2, posicion) > 0 Then
-            CantidadPorCobertura vgIdHistorialImportacion, "COBERTURAHOGAR", vCoberturaLista(2, posicion), vLeidosPorCoberturaLista(2, posicion), 0
-        End If
-    
-    Next posicion
+    ProcesarCoberturasLeidas
 
 '================Control de Leidos===============================================
     cn1.Execute "TM_CargaPolizasLogDeSetLeidos " & vgCORRIDA & ", " & Ll

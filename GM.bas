@@ -21,11 +21,6 @@ Dim rsprod As New Recordset
 Dim regMod As Long
 Dim vNombreTablaTemporal As String
 
-Dim vCoberturaLista(0 To 2, 0 To 20) As String
-Dim vLeidosPorCoberturaLista(0 To 2, 0 To 20) As Long
-Dim vCoberturaActual(0 To 2) As String
-Dim posicion As Integer
-
 On Error Resume Next
 vgidCia = lIdCia ' sale del formulario del importador, al hacer click
 vgidCampana = lidCampana ' sale del formulario del importador, al hacer click
@@ -114,11 +109,7 @@ If FuncionesExcel.validarCampos(camposParaValidar(), oSheet, columnas) = True Th
     lRow = 2
     lCol = 1
     
-    For posicion = 0 To 20
-        vCoberturaLista(0, posicion) = "_"
-        vCoberturaLista(1, posicion) = "_"
-        vCoberturaLista(2, posicion) = "_"
-    Next posicion
+    InicializarCoberturaLista
 
     Do While lCol < columnas + 1
         v = oSheet.Cells(1, lCol)
@@ -204,27 +195,7 @@ If FuncionesExcel.validarCampos(camposParaValidar(), oSheet, columnas) = True Th
         Next
     
         '=============== Lectura de coberturas ===============
-        vCoberturaActual(0) = vgCOBERTURAVEHICULO
-        vCoberturaActual(1) = vgCOBERTURAVIAJERO
-        vCoberturaActual(2) = vgCOBERTURAHOGAR
-        
-        Dim coberturaPosicion As Integer
-            
-        For coberturaPosicion = 0 To 2
-            posicion = 0
-            Do While posicion < 20 And vCoberturaActual(coberturaPosicion) <> ""
-                If vCoberturaLista(coberturaPosicion, posicion) = vCoberturaActual(coberturaPosicion) Then
-                    vLeidosPorCoberturaLista(coberturaPosicion, posicion) = vLeidosPorCoberturaLista(coberturaPosicion, posicion) + 1
-                    Exit Do
-                ElseIf vCoberturaLista(coberturaPosicion, posicion) = "_" Then
-                    vCoberturaLista(coberturaPosicion, posicion) = vCoberturaActual(coberturaPosicion)
-                    vLeidosPorCoberturaLista(coberturaPosicion, posicion) = vLeidosPorCoberturaLista(coberturaPosicion, posicion) + 1
-                    Exit Do
-                End If
-                
-                posicion = posicion + 1
-            Loop
-        Next coberturaPosicion
+        LeerCoberturas
 
 '    If vCantDeErrores = 0 Then
     '==============  IMPORTANTE   ================================================================.
@@ -322,11 +293,11 @@ If FuncionesExcel.validarCampos(camposParaValidar(), oSheet, columnas) = True Th
             
     '========Control de errores=========================================================
     
-                If Err Then
-                    vCantDeErrores = vCantDeErrores + LoguearError(Err, flnErr, vgidCampana, "Proceso", lRow, "")
-                    Err.Clear
-                
-                End If
+            If Err Then
+                vCantDeErrores = vCantDeErrores + LoguearError(Err, flnErr, vgidCampana, "Proceso", lRow, "")
+                Err.Clear
+            
+            End If
                     
     '===========================================================================================
 ' bloque para el control de los registros leidos que se plasma (4K-HD) en la App del importador.
@@ -350,19 +321,7 @@ If FuncionesExcel.validarCampos(camposParaValidar(), oSheet, columnas) = True Th
         DoEvents
     Loop
     
-    For posicion = 0 To 20
-    
-        If vLeidosPorCoberturaLista(0, posicion) > 0 Then
-            CantidadPorCobertura vgIdHistorialImportacion, "COBERTURAVEHICULO", vCoberturaLista(0, posicion), vLeidosPorCoberturaLista(0, posicion), 0
-        End If
-        If vLeidosPorCoberturaLista(1, posicion) > 0 Then
-            CantidadPorCobertura vgIdHistorialImportacion, "COBERTURAVIAJERO", vCoberturaLista(1, posicion), vLeidosPorCoberturaLista(1, posicion), 0
-        End If
-        If vLeidosPorCoberturaLista(2, posicion) > 0 Then
-            CantidadPorCobertura vgIdHistorialImportacion, "COBERTURAHOGAR", vCoberturaLista(2, posicion), vLeidosPorCoberturaLista(2, posicion), 0
-        End If
-    
-    Next posicion
+    ProcesarCoberturasLeidas
 
 '================Control de Leidos===========llama al storeprocedure para hacer un update en tm_importacionHistorial
 

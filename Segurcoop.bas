@@ -32,9 +32,6 @@ Dim nroArchivo As Integer
 Dim archivoLeido As Integer
 
 Dim vLeidosLista(0 To 3) As Long
-'Dim vCoberturaLista(0 To 3, 0 To 2, 0 To 20) As String            ' campana,tipoCobertura,coberturaEncontrada
-'Dim vLeidosPorCoberturaLista(0 To 3, 0 To 2, 0 To 20) As Long     ' campana,tipoCobertura,coberturaEncontrada
-Dim vLeidosPorCoberturaLista(0 To 2) As Long                       ' tipoCobertura
 Dim vLotesLista(0 To 3) As Long
 Dim vidCampanaLista(0 To 3) As Integer
 Dim vidHistorialImportacionLista(0 To 3) As Long
@@ -73,7 +70,7 @@ TablaTemporal 'vgidCampana = 1073
 ''vgidCampana = 1073
 ''==================================================
 
-Dim vCantDeErrores As Long
+Dim vCantDeErrores As Integer
 Dim sFileErr As New FileSystemObject
 Dim flnErr As TextStream
 Set flnErr = sFileErr.CreateTextFile(App.Path & vgPosicionRelativa & sDirImportacion & "\" & Mid(fileimportacion, 1, Len(fileimportacion) - 5) & "_" & Year(Now) & Month(Now) & Day(Now) & "_" & Hour(Now) & Minute(Now) & Second(Now) & ".log", True)
@@ -142,6 +139,8 @@ For nroArchivo = 0 To 8
         vLote = 1
 
     End If
+    
+    InicializarCoberturaLista
 
     Select Case nroArchivo
         Case 0
@@ -635,34 +634,36 @@ For nroArchivo = 0 To 8
     
             End If
             
-            sssql = "Select COBERTURAVEHICULO, COBERTURAVIAJERO, COBERTURAHOGAR, descripcion from TM_PRODUCTOSMultiAsistencias where idcampana = " & vgidCampana & "  and idproductoencliente = '" & vgCodigoEnCliente & "'"
-            rsprod.Open sssql, cn1, adOpenForwardOnly, adLockReadOnly
-            If Not rsprod.EOF Then
-                vgCOBERTURAVEHICULO = rsprod("coberturavehiculo")
-                vCantDeErrores = vCantDeErrores + LoguearError(Err, flnErr, vgidCampana, "", lRow, sName)
-                
-                If vgCOBERTURAVEHICULO <> "" Then
-                    vLeidosPorCoberturaLista(0) = vLeidosPorCoberturaLista(0) + 1
-                End If
-                
-                vgCOBERTURAVIAJERO = rsprod("coberturaviajero")
-                vCantDeErrores = vCantDeErrores + LoguearError(Err, flnErr, vgidCampana, "", lRow, sName)
-                
-                If vgCOBERTURAVIAJERO <> "" Then
-                    vLeidosPorCoberturaLista(1) = vLeidosPorCoberturaLista(1) + 1
-                End If
-                
-                vgCOBERTURAHOGAR = rsprod("coberturahogar")
-                vCantDeErrores = vCantDeErrores + LoguearError(Err, flnErr, vgidCampana, "", lRow, sName)
-                
-                If vgCOBERTURAHOGAR <> "" Then
-                    vLeidosPorCoberturaLista(2) = vLeidosPorCoberturaLista(2) + 1
-                End If
-                
-            Else
-                vCantDeErrores = vCantDeErrores + LoguearErrorDeConcepto("Producto Inexistente", flnErr, vgidCampana, "", lRow, sName)
-            End If
-            rsprod.Close
+'            sssql = "Select COBERTURAVEHICULO, COBERTURAVIAJERO, COBERTURAHOGAR, descripcion from TM_PRODUCTOSMultiAsistencias where idcampana = " & vgidCampana & "  and idproductoencliente = '" & vgCodigoEnCliente & "'"
+'            rsprod.Open sssql, cn1, adOpenForwardOnly, adLockReadOnly
+'            If Not rsprod.EOF Then
+'                vgCOBERTURAVEHICULO = rsprod("coberturavehiculo")
+'                vCantDeErrores = vCantDeErrores + LoguearError(Err, flnErr, vgidCampana, "", lRow, sName)
+'
+'                If vgCOBERTURAVEHICULO <> "" Then
+'                    vLeidosPorCoberturaLista(0) = vLeidosPorCoberturaLista(0) + 1
+'                End If
+'
+'                vgCOBERTURAVIAJERO = rsprod("coberturaviajero")
+'                vCantDeErrores = vCantDeErrores + LoguearError(Err, flnErr, vgidCampana, "", lRow, sName)
+'
+'                If vgCOBERTURAVIAJERO <> "" Then
+'                    vLeidosPorCoberturaLista(1) = vLeidosPorCoberturaLista(1) + 1
+'                End If
+'
+'                vgCOBERTURAHOGAR = rsprod("coberturahogar")
+'                vCantDeErrores = vCantDeErrores + LoguearError(Err, flnErr, vgidCampana, "", lRow, sName)
+'
+'                If vgCOBERTURAHOGAR <> "" Then
+'                    vLeidosPorCoberturaLista(2) = vLeidosPorCoberturaLista(2) + 1
+'                End If
+'
+'            Else
+'                vCantDeErrores = vCantDeErrores + LoguearErrorDeConcepto("Producto Inexistente", flnErr, vgidCampana, "", lRow, sName)
+'            End If
+'            rsprod.Close
+            ObtenerCoberturas (vgidCampana), vgCodigoEnCliente, (vCantDeErrores), flnErr, Ll, (sName)
+            LeerCoberturas
             
             '==============  IMPORTANTE   ================================================================.
             '  Aqui controlamos si el registro ya existe en la base de datos de produccion
@@ -869,18 +870,12 @@ For nroArchivo = 0 To 8
     
         Loop
         
-        If vLeidosPorCoberturaLista(0) > 0 Then
-            CantidadPorCobertura vgIdHistorialImportacion, "COBERTURAVEHICULO", vgCOBERTURAVEHICULO, vLeidosPorCoberturaLista(0), 0
-        End If
-        If vLeidosPorCoberturaLista(1) > 0 Then
-            CantidadPorCobertura vgIdHistorialImportacion, "COBERTURAVIAJERO", vgCOBERTURAVIAJERO, vLeidosPorCoberturaLista(1), 0
-        End If
-        If vLeidosPorCoberturaLista(2) > 0 Then
-            CantidadPorCobertura vgIdHistorialImportacion, "COBERTURAHOGAR", vgCOBERTURAHOGAR, vLeidosPorCoberturaLista(2), 0
-        End If
-        vLeidosPorCoberturaLista(0) = 0
-        vLeidosPorCoberturaLista(1) = 0
-        vLeidosPorCoberturaLista(2) = 0
+        ProcesarCoberturasLeidas
+        For i = 0 To 20
+            vLeidosPorCoberturaLista(0, i) = 0
+            vLeidosPorCoberturaLista(1, i) = 0
+            vLeidosPorCoberturaLista(2, i) = 0
+        Next i
         
         If finProcesoCampana = 1 Then
             Select Case vgidCampana

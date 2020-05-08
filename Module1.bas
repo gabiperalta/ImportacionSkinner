@@ -116,6 +116,9 @@ Global vgInformacionAdicionalValor2 As String
 Global vgInformacionAdicionalValor3 As String
 Global vgInformacionAdicionalValor4 As String
 Global appPathTemp As String
+Global vCoberturaLista(0 To 2, 0 To 20) As String            ' campana,tipoCobertura,coberturaEncontrada
+Global vLeidosPorCoberturaLista(0 To 2, 0 To 20) As Long     ' campana,tipoCobertura,coberturaEncontrada
+Global vCoberturaActual(0 To 2) As String
 
 
 
@@ -263,6 +266,9 @@ Public Sub Blanquear()
     vgInformacionAdicionalValor2 = ""
     vgInformacionAdicionalValor3 = ""
     vgInformacionAdicionalValor4 = ""
+    vCoberturaActual(0) = ""
+    vCoberturaActual(1) = ""
+    vCoberturaActual(2) = ""
 
 End Sub
 Public Function AAMMDDToDD_MM_AA(tfecha As String) As Date
@@ -957,5 +963,60 @@ Else
 End If
 
 rsprod.Close
+
+End Sub
+
+Public Sub InicializarCoberturaLista()
+For i = 0 To 20
+    vCoberturaLista(0, i) = "_"
+    vCoberturaLista(1, i) = "_"
+    vCoberturaLista(2, i) = "_"
+Next i
+End Sub
+
+Public Sub LeerCoberturas()
+
+vCoberturaActual(0) = vgCOBERTURAVEHICULO
+vCoberturaActual(1) = vgCOBERTURAVIAJERO
+vCoberturaActual(2) = vgCOBERTURAHOGAR
+
+Dim coberturaPosicion As Integer
+Dim posicion As Integer
+    
+For coberturaPosicion = 0 To 2
+    posicion = 0
+    Do While posicion < 20 And Len(Trim(vCoberturaActual(coberturaPosicion))) > 1
+        If vCoberturaLista(coberturaPosicion, posicion) = vCoberturaActual(coberturaPosicion) Then
+            vLeidosPorCoberturaLista(coberturaPosicion, posicion) = vLeidosPorCoberturaLista(coberturaPosicion, posicion) + 1
+            Exit Do
+        ElseIf vCoberturaLista(coberturaPosicion, posicion) = "_" Then
+            vCoberturaLista(coberturaPosicion, posicion) = vCoberturaActual(coberturaPosicion)
+            vLeidosPorCoberturaLista(coberturaPosicion, posicion) = vLeidosPorCoberturaLista(coberturaPosicion, posicion) + 1
+            Exit Do
+        End If
+        
+        posicion = posicion + 1
+    Loop
+Next coberturaPosicion
+
+End Sub
+
+Public Sub ProcesarCoberturasLeidas()
+
+Dim posicion As Integer
+
+For posicion = 0 To 20
+
+    If vLeidosPorCoberturaLista(0, posicion) > 0 Then
+        CantidadPorCobertura vgIdHistorialImportacion, "COBERTURAVEHICULO", vCoberturaLista(0, posicion), vLeidosPorCoberturaLista(0, posicion), 0
+    End If
+    If vLeidosPorCoberturaLista(1, posicion) > 0 Then
+        CantidadPorCobertura vgIdHistorialImportacion, "COBERTURAVIAJERO", vCoberturaLista(1, posicion), vLeidosPorCoberturaLista(1, posicion), 0
+    End If
+    If vLeidosPorCoberturaLista(2, posicion) > 0 Then
+        CantidadPorCobertura vgIdHistorialImportacion, "COBERTURAHOGAR", vCoberturaLista(2, posicion), vLeidosPorCoberturaLista(2, posicion), 0
+    End If
+
+Next posicion
 
 End Sub

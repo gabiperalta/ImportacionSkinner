@@ -24,11 +24,6 @@ Dim vlineasTotales As Long
 Dim vdif As Long
 Dim regMod As Long
 
-Dim vCoberturaLista(0 To 2, 0 To 20) As String
-Dim vLeidosPorCoberturaLista(0 To 2, 0 To 20) As Long
-Dim vCoberturaActual(0 To 2) As String
-Dim posicion As Integer
-
 'Dim rs As ADODB.Recordset
 '    rs.Open Null, Null, adOpenKeyset, adLockBatchOptimistic
 '    rs.batchupdate
@@ -86,11 +81,7 @@ vCantDeErrores = 0
     nroLinea = 1
     vLote = 1
     
-    For posicion = 0 To 20
-        vCoberturaLista(0, posicion) = "_"
-        vCoberturaLista(1, posicion) = "_"
-        vCoberturaLista(2, posicion) = "_"
-    Next posicion
+    InicializarCoberturaLista
     
     Do Until tf.AtEndOfStream
         vCoberturaActual(0) = ""
@@ -161,7 +152,7 @@ vCantDeErrores = 0
         vPosicion = 431
         vgPROVINCIA = Mid(sLine, 431, 2)
         Select Case vgPROVINCIA
-             Case "1"
+            Case "1"
              vgPROVINCIA = "Tierra del Fuego"
             Case "2"
             vgPROVINCIA = "Santa Cruz"
@@ -307,27 +298,7 @@ vCantDeErrores = 0
 '        If DateDiff("d", vgFECHAVENCIMIENTO, Now()) < 0 Then
 
         '=============== Lectura de coberturas ===============
-        vCoberturaActual(0) = vgCOBERTURAVEHICULO
-        vCoberturaActual(1) = vgCOBERTURAVIAJERO
-        vCoberturaActual(2) = vgCOBERTURAHOGAR
-        
-        Dim coberturaPosicion As Integer
-            
-        For coberturaPosicion = 0 To 2
-            posicion = 0
-            Do While posicion < 20 And Len(Trim(vCoberturaActual(coberturaPosicion))) > 1
-                If vCoberturaLista(coberturaPosicion, posicion) = vCoberturaActual(coberturaPosicion) Then
-                    vLeidosPorCoberturaLista(coberturaPosicion, posicion) = vLeidosPorCoberturaLista(coberturaPosicion, posicion) + 1
-                    Exit Do
-                ElseIf vCoberturaLista(coberturaPosicion, posicion) = "_" Then
-                    vCoberturaLista(coberturaPosicion, posicion) = vCoberturaActual(coberturaPosicion)
-                    vLeidosPorCoberturaLista(coberturaPosicion, posicion) = vLeidosPorCoberturaLista(coberturaPosicion, posicion) + 1
-                    Exit Do
-                End If
-                
-                posicion = posicion + 1
-            Loop
-        Next coberturaPosicion
+        LeerCoberturas
 
 If Err Then
     MsgBox Err.Description & " en Posicion " & vPosicion
@@ -523,19 +494,7 @@ End If
         DoEvents
     Loop
     
-    For posicion = 0 To 20
-    
-        If vLeidosPorCoberturaLista(0, posicion) > 0 Then
-            CantidadPorCobertura vgIdHistorialImportacion, "COBERTURAVEHICULO", vCoberturaLista(0, posicion), vLeidosPorCoberturaLista(0, posicion), 0
-        End If
-        If vLeidosPorCoberturaLista(1, posicion) > 0 Then
-            CantidadPorCobertura vgIdHistorialImportacion, "COBERTURAVIAJERO", vCoberturaLista(1, posicion), vLeidosPorCoberturaLista(1, posicion), 0
-        End If
-        If vLeidosPorCoberturaLista(2, posicion) > 0 Then
-            CantidadPorCobertura vgIdHistorialImportacion, "COBERTURAHOGAR", vCoberturaLista(2, posicion), vLeidosPorCoberturaLista(2, posicion), 0
-        End If
-    
-    Next posicion
+    ProcesarCoberturasLeidas
 
 '================Control de Leidos===============================================
     cn1.Execute "TM_CargaPolizasLogDeSetLeidos " & vgCORRIDA & ", " & Ll

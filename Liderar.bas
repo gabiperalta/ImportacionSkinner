@@ -26,11 +26,6 @@ Dim regMod As Long
 '    rs.Open Null, Null, adOpenKeyset, adLockBatchOptimistic
 '    rs.batchupdate
 
-Dim vCoberturaLista(0 To 2, 0 To 20) As String
-Dim vLeidosPorCoberturaLista(0 To 2, 0 To 20) As Long
-Dim vCoberturaActual(0 To 2) As String
-Dim posicion As Integer
-
 
 On Error Resume Next
 
@@ -96,11 +91,7 @@ vCantDeErrores = 0
 
     Ll = 1
     
-    For posicion = 0 To 20
-        vCoberturaLista(0, posicion) = "_"
-        vCoberturaLista(1, posicion) = "_"
-        vCoberturaLista(2, posicion) = "_"
-    Next posicion
+    InicializarCoberturaLista
     
     Do Until tf.AtEndOfStream
         vCoberturaActual(0) = ""
@@ -229,27 +220,7 @@ vCantDeErrores = 0
  '      -------------------------------------------------------
  
         '=============== Lectura de coberturas ===============
-        vCoberturaActual(0) = vgCOBERTURAVEHICULO
-        vCoberturaActual(1) = vgCOBERTURAVIAJERO
-        vCoberturaActual(2) = vgCOBERTURAHOGAR
-        
-        Dim coberturaPosicion As Integer
-            
-        For coberturaPosicion = 0 To 2
-            posicion = 0
-            Do While posicion < 20 And vCoberturaActual(coberturaPosicion) <> ""
-                If vCoberturaLista(coberturaPosicion, posicion) = vCoberturaActual(coberturaPosicion) Then
-                    vLeidosPorCoberturaLista(coberturaPosicion, posicion) = vLeidosPorCoberturaLista(coberturaPosicion, posicion) + 1
-                    Exit Do
-                ElseIf vCoberturaLista(coberturaPosicion, posicion) = "_" Then
-                    vCoberturaLista(coberturaPosicion, posicion) = vCoberturaActual(coberturaPosicion)
-                    vLeidosPorCoberturaLista(coberturaPosicion, posicion) = vLeidosPorCoberturaLista(coberturaPosicion, posicion) + 1
-                    Exit Do
-                End If
-                
-                posicion = posicion + 1
-            Loop
-        Next coberturaPosicion
+        LeerCoberturas
         
 '  Aqui controlamos si el registro ya existe en la base de datos de produccion
 '   Si no existe hacemos el insert
@@ -454,10 +425,8 @@ Dim vdif As Long
             ImportadordePolizas.txtprocesando.Text = "Importando " & ImportadordePolizas.cmbCia.Text & Chr(13) & " copiando linea " & Ll
               ''========update ssql para porcentaje de modificaciones segun leidos en reporte de importaciones=========================================================
     
-          
             ssql = "update Auxiliout.dbo.tm_ImportacionHistorial set parcialLeidos=" & (Ll) & ",  parcialModificaciones =" & regMod & " where idcampana=" & vgidCampana & "and corrida =" & vgCORRIDA
-                            cn1.Execute ssql
-       
+            cn1.Execute ssql
         
             ll100 = 0
         End If
@@ -465,19 +434,7 @@ Dim vdif As Long
        
     Loop
     
-    For posicion = 0 To 20
-    
-        If vLeidosPorCoberturaLista(0, posicion) > 0 Then
-            CantidadPorCobertura vgIdHistorialImportacion, "COBERTURAVEHICULO", vCoberturaLista(0, posicion), vLeidosPorCoberturaLista(0, posicion), 0
-        End If
-        If vLeidosPorCoberturaLista(1, posicion) > 0 Then
-            CantidadPorCobertura vgIdHistorialImportacion, "COBERTURAVIAJERO", vCoberturaLista(1, posicion), vLeidosPorCoberturaLista(1, posicion), 0
-        End If
-        If vLeidosPorCoberturaLista(2, posicion) > 0 Then
-            CantidadPorCobertura vgIdHistorialImportacion, "COBERTURAHOGAR", vCoberturaLista(2, posicion), vLeidosPorCoberturaLista(2, posicion), 0
-        End If
-    
-    Next posicion
+    ProcesarCoberturasLeidas
 
 '================Control de Leidos===============================================
                             cn1.Execute "TM_CargaPolizasLogDeSetLeidos " & vgCORRIDA & ", " & Ll

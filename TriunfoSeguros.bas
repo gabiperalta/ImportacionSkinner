@@ -34,11 +34,11 @@ Dim sZone As String
 Dim sArchivo As String
 Dim sExtencion As String
 
-'Dim vLeidosLista(0 To 3) As Long
-Dim vCoberturaLista(0 To 2, 0 To 20) As String            ' campana,tipoCobertura,coberturaEncontrada
-Dim vLeidosPorCoberturaLista(0 To 2, 0 To 20) As Long     ' campana,tipoCobertura,coberturaEncontrada
-'Dim vLeidosPorCoberturaLista(0 To 2) As Long                       ' tipoCobertura
-Dim vCoberturaActual(0 To 2) As String
+''Dim vLeidosLista(0 To 3) As Long
+'Dim vCoberturaLista(0 To 2, 0 To 20) As String            ' campana,tipoCobertura,coberturaEncontrada
+'Dim vLeidosPorCoberturaLista(0 To 2, 0 To 20) As Long     ' campana,tipoCobertura,coberturaEncontrada
+''Dim vLeidosPorCoberturaLista(0 To 2) As Long                       ' tipoCobertura
+'Dim vCoberturaActual(0 To 2) As String
 
 cn.Execute "DELETE FROM bandejadeentrada.dbo.ImportaDatos2"
 On Error Resume Next
@@ -65,14 +65,8 @@ regMod = 0
 nroArchivo = 0
 archivoLeido = 0
 sFile = App.Path & vgPosicionRelativa & sDirImportacion & "\" & "TriunfoSeguros.txt"
-'For nroArchivo = 1 To 2
 
-For i = 0 To 20
-    vCoberturaLista(0, i) = "_"
-    vCoberturaLista(1, i) = "_"
-    vCoberturaLista(2, i) = "_"
-Next i
-
+InicializarCoberturaLista
 
 Do While fs.FileExists(sFile)
     
@@ -130,9 +124,6 @@ Do While fs.FileExists(sFile)
     Do Until tf.AtEndOfStream
     
         Blanquear
-        vCoberturaActual(0) = ""
-        vCoberturaActual(1) = ""
-        vCoberturaActual(2) = ""
     
         sLine = tf.ReadLine
         If Len(Trim(sLine)) < 5 Then Exit Do
@@ -472,48 +463,7 @@ Do While fs.FileExists(sFile)
     End If
     
     '=============== Lectura de coberturas ===============
-    vCoberturaActual(0) = vgCOBERTURAVEHICULO
-    vCoberturaActual(1) = vgCOBERTURAVIAJERO
-    vCoberturaActual(2) = vgCOBERTURAHOGAR
-    
-    
-    Dim posicion As Integer
-    'Dim encontrado As Integer
-    Dim coberturaPosicion As Integer
-    
-    'encontrado = 0
-        
-    For coberturaPosicion = 0 To 2
-        posicion = 0
-        Do While posicion < 20 And vCoberturaActual(coberturaPosicion) <> ""
-            If vCoberturaLista(coberturaPosicion, posicion) = vCoberturaActual(coberturaPosicion) Then
-                vLeidosPorCoberturaLista(coberturaPosicion, posicion) = vLeidosPorCoberturaLista(coberturaPosicion, posicion) + 1
-                Exit Do
-            ElseIf vCoberturaLista(coberturaPosicion, posicion) = "_" Then
-                vCoberturaLista(coberturaPosicion, posicion) = vCoberturaActual(coberturaPosicion)
-                vLeidosPorCoberturaLista(coberturaPosicion, posicion) = vLeidosPorCoberturaLista(coberturaPosicion, posicion) + 1
-                Exit Do
-            End If
-            
-            posicion = posicion + 1
-        Loop
-    
-'        For posicion = 0 To 20
-'            If vLeidosPorCoberturaLista(coberturaPosicion, posicion) = vCoberturaActual(coberturaPosicion) Then
-'                encontrado = 1
-'                Exit For
-'            End If
-'        Next posicion
-'
-'        If encontrado = 0 Then
-'            For posicion = 0 To 20
-'                If vidCampanaLista(posicion) = 0 Then
-'                    vidCampanaLista(posicion) = vgidCampana
-'                    Exit For
-'                End If
-'            Next posicion
-'        End If
-    Next coberturaPosicion
+    LeerCoberturas
     
     
   '==============  IMPORTANTE   ================================================================.
@@ -874,20 +824,7 @@ If archivoLeido = 0 Then
     Exit Sub
 End If
 
-For posicion = 0 To 20
-
-    If vLeidosPorCoberturaLista(0, posicion) > 0 Then
-        CantidadPorCobertura vgIdHistorialImportacion, "COBERTURAVEHICULO", vCoberturaLista(0, posicion), vLeidosPorCoberturaLista(0, posicion), 0
-    End If
-    If vLeidosPorCoberturaLista(1, posicion) > 0 Then
-        CantidadPorCobertura vgIdHistorialImportacion, "COBERTURAVIAJERO", vCoberturaLista(1, posicion), vLeidosPorCoberturaLista(1, posicion), 0
-    End If
-    If vLeidosPorCoberturaLista(2, posicion) > 0 Then
-        CantidadPorCobertura vgIdHistorialImportacion, "COBERTURAHOGAR", vCoberturaLista(2, posicion), vLeidosPorCoberturaLista(2, posicion), 0
-    End If
-
-Next posicion
-
+ProcesarCoberturasLeidas
       
 '================Control de Leidos===============================================
                             cn1.Execute "TM_CargaPolizasLogDeSetLeidos " & vgCORRIDA & ", " & Ll

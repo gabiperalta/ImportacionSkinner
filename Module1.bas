@@ -116,8 +116,8 @@ Global vgInformacionAdicionalValor2 As String
 Global vgInformacionAdicionalValor3 As String
 Global vgInformacionAdicionalValor4 As String
 Global appPathTemp As String
-Global vCoberturaLista(0 To 2, 0 To 20) As String            ' campana,tipoCobertura,coberturaEncontrada
-Global vLeidosPorCoberturaLista(0 To 2, 0 To 20) As Long     ' campana,tipoCobertura,coberturaEncontrada
+Global vgCoberturaLista(0 To 2, 0 To 20) As String            ' campana,tipoCobertura,coberturaEncontrada
+Global vgLeidosPorCoberturaLista(0 To 2, 0 To 20) As Long     ' campana,tipoCobertura,coberturaEncontrada
 Global vCoberturaActual(0 To 2) As String
 
 
@@ -968,9 +968,9 @@ End Sub
 
 Public Sub InicializarCoberturaLista()
 For i = 0 To 20
-    vCoberturaLista(0, i) = "_"
-    vCoberturaLista(1, i) = "_"
-    vCoberturaLista(2, i) = "_"
+    vgCoberturaLista(0, i) = "_"
+    vgCoberturaLista(1, i) = "_"
+    vgCoberturaLista(2, i) = "_"
 Next i
 End Sub
 
@@ -986,12 +986,12 @@ Dim posicion As Integer
 For coberturaPosicion = 0 To 2
     posicion = 0
     Do While posicion < 20 And Len(Trim(vCoberturaActual(coberturaPosicion))) > 1
-        If vCoberturaLista(coberturaPosicion, posicion) = vCoberturaActual(coberturaPosicion) Then
-            vLeidosPorCoberturaLista(coberturaPosicion, posicion) = vLeidosPorCoberturaLista(coberturaPosicion, posicion) + 1
+        If vgCoberturaLista(coberturaPosicion, posicion) = vCoberturaActual(coberturaPosicion) Then
+            vgLeidosPorCoberturaLista(coberturaPosicion, posicion) = vgLeidosPorCoberturaLista(coberturaPosicion, posicion) + 1
             Exit Do
-        ElseIf vCoberturaLista(coberturaPosicion, posicion) = "_" Then
-            vCoberturaLista(coberturaPosicion, posicion) = vCoberturaActual(coberturaPosicion)
-            vLeidosPorCoberturaLista(coberturaPosicion, posicion) = vLeidosPorCoberturaLista(coberturaPosicion, posicion) + 1
+        ElseIf vgCoberturaLista(coberturaPosicion, posicion) = "_" Then
+            vgCoberturaLista(coberturaPosicion, posicion) = vCoberturaActual(coberturaPosicion)
+            vgLeidosPorCoberturaLista(coberturaPosicion, posicion) = vgLeidosPorCoberturaLista(coberturaPosicion, posicion) + 1
             Exit Do
         End If
         
@@ -1007,14 +1007,14 @@ Dim posicion As Integer
 
 For posicion = 0 To 20
 
-    If vLeidosPorCoberturaLista(0, posicion) > 0 Then
-        CantidadPorCobertura vgIdHistorialImportacion, "COBERTURAVEHICULO", vCoberturaLista(0, posicion), vLeidosPorCoberturaLista(0, posicion), 0
+    If vgLeidosPorCoberturaLista(0, posicion) > 0 Then
+        CantidadPorCobertura vgIdHistorialImportacion, "COBERTURAVEHICULO", vgCoberturaLista(0, posicion), vgLeidosPorCoberturaLista(0, posicion), 0
     End If
-    If vLeidosPorCoberturaLista(1, posicion) > 0 Then
-        CantidadPorCobertura vgIdHistorialImportacion, "COBERTURAVIAJERO", vCoberturaLista(1, posicion), vLeidosPorCoberturaLista(1, posicion), 0
+    If vgLeidosPorCoberturaLista(1, posicion) > 0 Then
+        CantidadPorCobertura vgIdHistorialImportacion, "COBERTURAVIAJERO", vgCoberturaLista(1, posicion), vgLeidosPorCoberturaLista(1, posicion), 0
     End If
-    If vLeidosPorCoberturaLista(2, posicion) > 0 Then
-        CantidadPorCobertura vgIdHistorialImportacion, "COBERTURAHOGAR", vCoberturaLista(2, posicion), vLeidosPorCoberturaLista(2, posicion), 0
+    If vgLeidosPorCoberturaLista(2, posicion) > 0 Then
+        CantidadPorCobertura vgIdHistorialImportacion, "COBERTURAHOGAR", vgCoberturaLista(2, posicion), vgLeidosPorCoberturaLista(2, posicion), 0
     End If
 
 Next posicion
